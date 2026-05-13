@@ -56,8 +56,7 @@ print(f'  Workers   : {len(d[\"workers\"])}'); \
 print()"
 
 analyze: ## Run result analyzer (shows threat intel report)
-	$(COMPOSE) run --rm -v $$(pwd)/scripts:/scripts python:3.12-slim \
-		python3 /scripts/analyze_results.py /output
+	$(COMPOSE) run --rm analyzer
 
 clean: ## Remove build artifacts and volumes
 	$(COMPOSE) down -v --rmi local

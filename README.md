@@ -6,7 +6,7 @@ An educational **distributed MapReduce simulation** built with Go and orchestrat
 
 ---
 
-## 📑 Daftar Isi
+## Daftar Isi
 
 1. [Apa itu MapReduce?](#apa-itu-mapreduce)
 2. [Cara Kerja — Penjelasan Mendalam](#cara-kerja--penjelasan-mendalam)
