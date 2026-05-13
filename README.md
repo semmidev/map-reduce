@@ -1,8 +1,8 @@
-# 🔐 MapReduce — Analisis Log Serangan Siber Terdistribusi
+# MapReduce — Distributed Cyber Attack Log Analysis
 
-Sebuah **sistem MapReduce terdistribusi** berkualitas produksi yang dibangun dengan Go, disimulasikan di atas kluster **Docker Compose** — di mana setiap container bertindak sebagai mesin independen yang berkomunikasi melalui DNS internal Docker.
+An educational **distributed MapReduce simulation** built with Go and orchestrated using **Docker Compose**, where each container emulates an independent machine communicating over Docker’s internal DNS network.
 
-**Use Case**: Memproses jutaan baris access log server secara paralel untuk mendeteksi serangan siber — SQL injection, XSS, path traversal, active scanner — lalu menghasilkan **Laporan Intelijen Ancaman** yang terstruktur.
+**Use Case**: Demonstrates parallel processing of large-scale server access logs to identify cyber attack patterns — including SQL injection, XSS, path traversal, and active scanners — and generate a structured **Threat Intelligence Report**.
 
 ---
 
