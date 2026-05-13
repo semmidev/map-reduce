@@ -1,0 +1,243 @@
+version: "3.9"
+
+# ============================================================
+# 🔐 MapReduce Cluster — Cyber Attack Log Analysis
+# ============================================================
+#
+# Network topology:
+#
+#   ┌─────────────────────────────────────────────────────┐
+#   │              mapreduce-cluster (bridge)              │
+#   │                                                     │
+#   │  [master]   ←─── HTTP RPC ───→  [worker-*]         │
+#   │   :8080                                             │
+#   │                                                     │
+#   │  Workers discover master via Docker DNS:            │
+#   │  MASTER_HOST=master  →  master:8080                 │
+#   │                                                     │
+#   │  Each worker has a unique container name that       │
+#   │  becomes its Worker ID in the cluster.              │
+#   └─────────────────────────────────────────────────────┘
+#
+# Shared volumes:
+#   - data-vol    : input log files (written by log-generator)
+#   - output-vol  : final MapReduce output
+# ============================================================
+
+networks:
+  mapreduce-cluster:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.28.0.0/16
+
+volumes:
+  data-vol:
+  output-vol:
+
+services:
+
+  # ──────────────────────────────────────────────
+  # Log Generator — creates realistic attack logs
+  # Runs once and exits. Workers wait for master.
+  # ──────────────────────────────────────────────
+  log-generator:
+    image: python:3.12-slim
+    container_name: log-generator
+    volumes:
+      - data-vol:/data
+      - ./scripts:/scripts
+    command: >
+      python3 /scripts/generate_logs.py /data 6 8000
+    networks:
+      - mapreduce-cluster
+    restart: "no"
+
+  # ──────────────────────────────────────────────
+  # Master — orchestrates the MapReduce job
+  # Waits for log-generator, then starts serving
+  # ──────────────────────────────────────────────
+  master:
+    build:
+      context: .
+      dockerfile: Dockerfile.master
+    container_name: master
+    hostname: master
+    networks:
+      - mapreduce-cluster
+    ports:
+      - "8080:8080"         # Expose status endpoint to host
+    volumes:
+      - data-vol:/data:ro   # Read-only: input logs
+      - output-vol:/output  # Write: final output
+    environment:
+      MASTER_PORT: "8080"
+      INPUT_DIR: "/data"
+      OUTPUT_DIR: "/output"
+      N_REDUCE: "4"         # 4 reduce partitions = 4 output files
+    depends_on:
+      log-generator:
+        condition: service_completed_successfully
+    restart: on-failure
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:8080/status"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  # ──────────────────────────────────────────────
+  # Workers — the actual compute nodes
+  # Each container name becomes the Machine ID.
+  # Docker DNS allows workers to resolve "master".
+  # ──────────────────────────────────────────────
+
+  worker-jakarta-1:
+    build:
+      context: .
+      dockerfile: Dockerfile.worker
+    container_name: worker-jakarta-1
+    hostname: worker-jakarta-1
+    networks:
+      - mapreduce-cluster
+    volumes:
+      - data-vol:/data:ro
+      - output-vol:/output
+    environment:
+      WORKER_ID: "worker-jakarta-1"
+      WORKER_ADDR: "worker-jakarta-1:9090"
+      MASTER_HOST: "master"      # Docker DNS resolves to master container
+      MASTER_PORT: "8080"
+    depends_on:
+      master:
+        condition: service_healthy
+    restart: on-failure
+
+  worker-jakarta-2:
+    build:
+      context: .
+      dockerfile: Dockerfile.worker
+    container_name: worker-jakarta-2
+    hostname: worker-jakarta-2
+    networks:
+      - mapreduce-cluster
+    volumes:
+      - data-vol:/data:ro
+      - output-vol:/output
+    environment:
+      WORKER_ID: "worker-jakarta-2"
+      WORKER_ADDR: "worker-jakarta-2:9090"
+      MASTER_HOST: "master"
+      MASTER_PORT: "8080"
+    depends_on:
+      master:
+        condition: service_healthy
+    restart: on-failure
+
+  worker-singapore-1:
+    build:
+      context: .
+      dockerfile: Dockerfile.worker
+    container_name: worker-singapore-1
+    hostname: worker-singapore-1
+    networks:
+      - mapreduce-cluster
+    volumes:
+      - data-vol:/data:ro
+      - output-vol:/output
+    environment:
+      WORKER_ID: "worker-singapore-1"
+      WORKER_ADDR: "worker-singapore-1:9090"
+      MASTER_HOST: "master"
+      MASTER_PORT: "8080"
+    depends_on:
+      master:
+        condition: service_healthy
+    restart: on-failure
+
+  worker-singapore-2:
+    build:
+      context: .
+      dockerfile: Dockerfile.worker
+    container_name: worker-singapore-2
+    hostname: worker-singapore-2
+    networks:
+      - mapreduce-cluster
+    volumes:
+      - data-vol:/data:ro
+      - output-vol:/output
+    environment:
+      WORKER_ID: "worker-singapore-2"
+      WORKER_ADDR: "worker-singapore-2:9090"
+      MASTER_HOST: "master"
+      MASTER_PORT: "8080"
+    depends_on:
+      master:
+        condition: service_healthy
+    restart: on-failure
+
+  worker-us-east-1:
+    build:
+      context: .
+      dockerfile: Dockerfile.worker
+    container_name: worker-us-east-1
+    hostname: worker-us-east-1
+    networks:
+      - mapreduce-cluster
+    volumes:
+      - data-vol:/data:ro
+      - output-vol:/output
+    environment:
+      WORKER_ID: "worker-us-east-1"
+      WORKER_ADDR: "worker-us-east-1:9090"
+      MASTER_HOST: "master"
+      MASTER_PORT: "8080"
+    depends_on:
+      master:
+        condition: service_healthy
+    restart: on-failure
+
+  worker-us-west-1:
+    build:
+      context: .
+      dockerfile: Dockerfile.worker
+    container_name: worker-us-west-1
+    hostname: worker-us-west-1
+    networks:
+      - mapreduce-cluster
+    volumes:
+      - data-vol:/data:ro
+      - output-vol:/output
+    environment:
+      WORKER_ID: "worker-us-west-1"
+      WORKER_ADDR: "worker-us-west-1:9090"
+      MASTER_HOST: "master"
+      MASTER_PORT: "8080"
+    depends_on:
+      master:
+        condition: service_healthy
+    restart: on-failure
+
+  # ──────────────────────────────────────────────
+  # Result Analyzer — runs after job completes
+  # Prints a formatted threat intelligence report
+  # ──────────────────────────────────────────────
+  analyzer:
+    image: python:3.12-slim
+    container_name: analyzer
+    volumes:
+      - output-vol:/output:ro
+      - ./scripts:/scripts
+    command: >
+      sh -c "sleep 5 && python3 /scripts/analyze_results.py /output"
+    networks:
+      - mapreduce-cluster
+    depends_on:
+      - worker-jakarta-1
+      - worker-jakarta-2
+      - worker-singapore-1
+      - worker-singapore-2
+      - worker-us-east-1
+      - worker-us-west-1
+    profiles:
+      - analyze   # Only runs when: docker compose --profile analyze up analyzer
+    restart: "no"
