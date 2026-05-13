@@ -47,11 +47,12 @@ type LogEntry struct {
 
 // CyberLogMap parses server logs and emits threat signals
 // Emits keys like:
-//   "ATTACKER_IP:192.168.1.1"
-//   "ATTACK_TYPE:SQL_INJECTION"
-//   "TARGET_ENDPOINT:/admin/login"
-//   "SUSPICIOUS_UA:sqlmap/1.7"
-//   "STATUS_FLOOD:404"
+//
+//	"ATTACKER_IP:192.168.1.1"
+//	"ATTACK_TYPE:SQL_INJECTION"
+//	"TARGET_ENDPOINT:/admin/login"
+//	"SUSPICIOUS_UA:sqlmap/1.7"
+//	"STATUS_FLOOD:404"
 func CyberLogMap(filename, content string) []common.KeyValue {
 	var kvs []common.KeyValue
 
@@ -377,11 +378,4 @@ func uniquePaths(vals []string) []string {
 func toJSON(v any) string {
 	b, _ := json.Marshal(v)
 	return string(b)
-}
-
-func min(a, b int) int {
-	if a < b {
-		return a
-	}
-	return b
 }
