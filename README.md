@@ -17,6 +17,7 @@ An educational **distributed MapReduce simulation** built with Go and orchestrat
 7. [Internal Kluster](#internal-kluster)
 8. [Toleransi Kesalahan](#toleransi-kesalahan)
 9. [Menambahkan Job Baru](#menambahkan-job-baru)
+10. [Ebook Indexer](#e-book-indexer)
 
 ---
 
