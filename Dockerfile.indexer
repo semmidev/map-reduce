@@ -1,0 +1,19 @@
+FROM golang:1.26-alpine AS builder
+
+WORKDIR /app
+COPY go.mod ./
+RUN go mod download
+COPY . .
+RUN CGO_ENABLED=0 GOOS=linux go build -o /bin/indexer ./cmd/indexer
+
+# ── Runtime image ──────────────────────────────────────────────────────────
+FROM alpine:3.21
+
+# poppler-utils provides pdftotext and pdfinfo for PDF text extraction
+RUN apk add --no-cache ca-certificates poppler-utils
+
+COPY --from=builder /bin/indexer /bin/indexer
+
+# Default usage: mount PDF at /data/book.pdf, output lands at /output/index.json
+ENTRYPOINT ["/bin/indexer"]
+CMD ["--help"]
