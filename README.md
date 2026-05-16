@@ -590,10 +590,13 @@ Mengurutkan pasangan KV intermediate berdasarkan key (MapReduce kanonik) berarti
 
 ## E-Book Indexer
 
-# Build image
+### Build image
+```sh
 docker build -f Dockerfile.indexer -t bookindexer .
+```
 
-# Jalankan
+### Jalankan
+```sh
 docker run --rm \
   -v /path/to/pdf:/data \
   -v $(pwd)/output:/output \
@@ -605,10 +608,12 @@ docker run --rm \
   --top-n=500 \
   --phrases="distributed systems,hash table,binary search" \
   --output=/output/index.md
+```
 
-# Atau langsung (jika poppler sudah terinstall)
+### Atau langsung (jika poppler sudah terinstall)
+```sh
 go run ./cmd/indexer --input=ebook.pdf --output=index.json
-
+```
 ## Lisensi
 
 MIT — gunakan dengan bebas, pelajari dengan mendalam.
