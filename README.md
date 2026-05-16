@@ -598,15 +598,15 @@ docker build -f Dockerfile.indexer -t bookindexer .
 ### Jalankan
 ```sh
 docker run --rm \
-  -v /path/to/pdf:/data \
+  -v $(pwd)/testdata:/data \
   -v $(pwd)/output:/output \
   bookindexer \
-  --input=/data/ebook.pdf \
+  --input=/data/sample.pdf \
   --workers=4 \
   --min-word-length=4 \
   --exclude=chapter,figure,table \
-  --top-n=500 \
-  --phrases="distributed systems,hash table,binary search" \
+  --top-n=100 \
+  --phrases="microservice,architecture,Three-tiered" \
   --output=/output/index.md
 ```
 
